@@ -1,0 +1,7 @@
+conda create -y --no-default-packages --name LNR24 python=3.11
+conda activate
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia &&
+conda install -c anaconda scikit-learn  seaborn pandas && conda install -c huggingface transformers
+conda install -c conda-forge  matplotlib
+pip install evaluate
+pip install peft

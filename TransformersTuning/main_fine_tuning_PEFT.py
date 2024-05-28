@@ -17,7 +17,7 @@ def init_distributed_mode():
 
 if __name__ == "__main__":
     # Initialize wandb
-    wandb.init(project="your_project_name", entity="your_wandb_username")
+    wandb.init(project="LNR", entity="javier-luque-saiz")
 
     # Initialize distributed mode
     init_distributed_mode()

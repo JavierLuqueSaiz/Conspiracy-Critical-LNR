@@ -63,6 +63,7 @@ if __name__ == "__main__":
     )
 
     model = get_peft_model(base, lora_config)
+    model.print_trainable_parameters()
 
     # If multiple GPUs are available, wrap the model with DataParallel
     if n_gpu > 1:
@@ -70,7 +71,7 @@ if __name__ == "__main__":
         model = DataParallel(model)
 
     model.to(device)
-    model.print_trainable_parameters()
+    
 
     X_train, X_val = train_test_split(X, test_size=0.1, random_state=1234, shuffle=True, stratify=X['label'])
 

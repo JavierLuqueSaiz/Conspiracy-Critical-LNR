@@ -98,7 +98,7 @@ if __name__ == "__main__":
                                 entity='javier-luque',
                                 group=f'{lang}_{model_name}',
                                 job_type='model')
-        parent_run.config.update(preconfig)
+        parent_run.config.update(config)
         parent_run.config.update({"SEED":SEED})
         
         
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                             job_type=f'hyperparam-tuning-{runs}',
                             name=f'{lang}_{model_name}_{runs}_fold_{fold}'
                             ) as fold_run:
-                fold_run.config.update(preconfig)
+                fold_run.config.update(config)
                 fold_run.config.update(config)
                 fold_run.config.update({"SEED":SEED})
 

@@ -184,7 +184,9 @@ def validate(_wandb, _model, _test_data, _tokenizer, _batch_size=32, _padding="m
                 eval_metric.add_batch(predictions=predictions, references=batch["labels"])
     if evaltype==True:
         total_acc_test = eval_metric.compute()
-        print(f'Test {_measure}: {total_acc_test[_measure]:.4f}')
+        test_mesure = total_acc_test[_measure]
+        test_accuarcy = total_acc_test["accuracy"]
+        avg_test_loss = total_loss / len(test_dataloader)        # Log the test accuracy and loss to wandb
         _wandb.log({
             f'test_{_measure}': test_mesure,
             'test_accuracy': test_accuarcy,

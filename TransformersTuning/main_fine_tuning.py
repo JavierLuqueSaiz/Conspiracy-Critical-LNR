@@ -55,9 +55,9 @@ if __name__ == "__main__":
 
     kf = KFold(n_splits=5)
 
-    for i, preconfig in preconfig.items():
-        lang=preconfig["lang"]
-        model_name=preconfig["model_name"]
+    for i, config in preconfig.items():
+        lang=config["lang"]
+        model_name=config["model_name"]
         if lang == "spanish":
             X= es_train_df
         elif lang == "english":

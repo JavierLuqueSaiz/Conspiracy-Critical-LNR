@@ -16,8 +16,6 @@ if __name__ == "__main__":
     
     # Format it to include hours, minutes, and seconds
     formatted_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
-    
-    wandb.login()
 
     set_seed(SEED)
 

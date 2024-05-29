@@ -132,7 +132,7 @@ if __name__ == "__main__":
                 #FINE-TUNNING the model and obtaining the best model across all epochs
                 fineTmodel=training(_wandb=fold_run, _model=model, _train_data=X_train, _val_data=X_val,_learning_rate=config["learning"],
                                     _optimizer_name=config["optimizer_name"], _schedule=config["schedule"],  _epochs=config["epochs"], _tokenizer=config["tokenizer"], _batch_size=config["batch_size"],
-                                    _padding="max_length", _max_length=config["max_length"], _truncation=True, _patience=config["patience"], _measure=config["measure", _out="./out")
+                                    _padding="max_length", _max_length=config["max_length"], _truncation=True, _patience=config["patience"], _measure=config["measure"], _out="./out")
             
             
                 #VALIDATING OR PREDICTIONG on the test partition, this time I'm using the validation set, but you have to use the test set.

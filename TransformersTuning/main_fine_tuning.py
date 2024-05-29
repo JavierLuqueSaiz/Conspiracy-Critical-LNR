@@ -104,8 +104,7 @@ if __name__ == "__main__":
         
         print("Loading Tokenizer", model_name)
         tokenizer = AutoTokenizer.from_pretrained(model_name)
-        print("Loading Transformer Model", model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+
 
         runs = 0
 
@@ -140,6 +139,10 @@ if __name__ == "__main__":
     
                     # Log the fold number
                     fold_run.config.update({"fold": fold + 1})
+                    print(f'Fold: {fold+1}')
+
+                    wandb.log({"info": f"Loading Transformer Model {model_name}"})
+                    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
                 
                     #FINE-TUNNING the model and obtaining the best model across all epochs
                     fineTmodel=training(_wandb=fold_run, _model=model, _train_data=X_train, _val_data=X_val,_learning_rate=config["learning"],

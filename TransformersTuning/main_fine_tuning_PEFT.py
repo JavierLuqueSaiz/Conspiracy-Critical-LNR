@@ -2,25 +2,21 @@ import os
 import wandb
 import pandas as pd
 import torch
-import torch.distributed as dist
+from torch.nn import DataParallel
 from datareader import en_train_df, es_train_df
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_scheduler
 from sklearn.model_selection import train_test_split
 from fine_tuning_PEFT import training, validate
 from peft import LoraConfig, get_peft_model, TaskType
-from torch.nn.parallel import DistributedDataParallel as DDP
-
-#def init_distributed_mode():
-#    """ Initialize distributed training """
-#    dist.init_process_group(backend='gloo', init_method='env://')
-#    torch.manual_seed(1234)
 
 if __name__ == "__main__":
     # Initialize wandb
     wandb.init(project="LNR", entity="javier-luque")
 
-    # Initialize distributed mode
-    #init_distributed_mode()
+    # Check if multiple GPUs are available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    n_gpu = torch.cuda.device_count()
+    print("Using", n_gpu, "GPUs.")
 
     # Hyperparameters and settings
     lang = "english"
@@ -33,11 +29,11 @@ if __name__ == "__main__":
         X = pd.concat([en_train_df, es_train_df])
 
     if lang == "english":
-        assert (model_name in ['bert-base-uncased', "roberta-base", 'microsoft/deberta-base'])
+        assert model_name in ['bert-base-uncased', "roberta-base", 'microsoft/deberta-base']
     if lang == "spanish":
-        assert (model_name in ['dccuchile/bert-base-spanish-wwm-uncased', 'PlanTL-GOB-ES/roberta-base-bne'])
+        assert model_name in ['dccuchile/bert-base-spanish-wwm-uncased', 'PlanTL-GOB-ES/roberta-base-bne']
     if lang == "multi":
-        assert (model_name in ['bert-base-multilingual-uncased'])
+        assert model_name in ['bert-base-multilingual-uncased']
 
     # Hyperparameters
     lr_scheduler, optimizer = None, None
@@ -67,7 +63,13 @@ if __name__ == "__main__":
     )
 
     model = get_peft_model(base, lora_config)
-    model = DDP(model)  # Wrap model with DDP
+
+    # If multiple GPUs are available, wrap the model with DataParallel
+    if n_gpu > 1:
+        print("Using DataParallel to utilize multiple GPUs.")
+        model = DataParallel(model)
+
+    model.to(device)
     model.print_trainable_parameters()
 
     X_train, X_val = train_test_split(X, test_size=0.1, random_state=1234, shuffle=True, stratify=X['label'])
@@ -88,3 +90,4 @@ if __name__ == "__main__":
         _model=fineTmodel, _test_data=test_data, _tokenizer=tokenizer, _batch_size=batch_size,
         _padding="max_length", _max_length=max_length, _truncation=True, _measure=measure, evaltype=True
     )
+

@@ -27,7 +27,10 @@ def training(_wandb, _model, _train_data, _val_data, _learning_rate, _optimizer_
     print("The device available is:", str(device))
     _wandb.log({"device": str(device)})
     if use_cuda:
-        model = _model.cuda()
+        model = _model.to(device)
+          if torch.cuda.device_count() > 1:
+              print(f"Usando {torch.cuda.device_count()} GPUs")
+              model = torch.nn.DataParallel(model)
     best_measure, best_model_name, patience = None, None, 0
     training_stats = []
     # train_eval = evaluate.load("accuracy")
@@ -161,7 +164,10 @@ def validate(_wandb, _model, _test_data, _tokenizer, _batch_size=32, _padding="m
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
     if use_cuda:
-        model = _model.cuda()
+        model = _model.to(device)
+        if torch.cuda.device_count() > 1:
+            print(f"Usando {torch.cuda.device_count()} GPUs")
+            model = torch.nn.DataParallel(model)
     eval_metric, out, k = None, None, 0
     if evaltype==True:
         eval_metric = evaluate.load(f"Yeshwant123/{_measure}")

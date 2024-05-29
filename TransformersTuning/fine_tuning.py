@@ -11,7 +11,7 @@ from tqdm import tqdm
 from torch.optim import Adam, RMSprop
 from transformers  import  get_scheduler
 
-def training(_model, _train_data, _val_data, _learning_rate, _optimizer_name, _schedule, _epochs,
+def training(_wandb, _model, _train_data, _val_data, _learning_rate, _optimizer_name, _schedule, _epochs,
              _tokenizer, _batch_size=32, _padding="max_length", _max_length=512, _truncation=True,
              _patience=10, _measure= "accuracy", _out=None):
     train_encodings = _tokenizer(_train_data["text"].tolist(), max_length=_max_length, truncation=_truncation, padding=_padding, return_tensors="pt")
@@ -25,6 +25,7 @@ def training(_model, _train_data, _val_data, _learning_rate, _optimizer_name, _s
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
     print("The device available is:", str(device))
+    _wandb.log({"device": str(device)})
     if use_cuda:
         model = _model.cuda()
     best_measure, best_model_name, patience = None, None, 0
@@ -32,6 +33,8 @@ def training(_model, _train_data, _val_data, _learning_rate, _optimizer_name, _s
     # train_eval = evaluate.load("accuracy")
     train_eval = evaluate.load(f"Yeshwant123/{_measure}")
 
+    _wandb.log({"info": "Creating the Optimizer and Schedule "})
+    
     lr_scheduler, optimizer = None, None
     #Here we can specify different methods to optmize the paarameters, initially we can consider Adam and RmsProp
 
@@ -86,20 +89,24 @@ def training(_model, _train_data, _val_data, _learning_rate, _optimizer_name, _s
         total_acc_val = eval_metric.compute()
 
         if best_measure is None or (best_measure < total_acc_val[_measure]):  # here you must set your save weights
-            if best_measure == None: print("It's the first time (epoch) ******************")
+            if best_measure == None:
+              print("It's the first time (epoch) ******************")
+              _wandb.log({"info": "It's the first time (epoch) ******************"})
             elif best_measure < total_acc_val[_measure]:
                 print("In this epoch an improvement was achieved. (epoch) ******************")
-
+                _wandb.log({"info": "In this epoch an improvement was achieved. (epoch) ******************"})
             best_measure = total_acc_val[_measure]
             try:
                 os.makedirs(_out + os.sep + 'models', exist_ok=True)
             except OSError as error:
                 print("Directory '%s' can not be created")
+                _wandb.log({"info": "Directory '%s' can not be created"})
             # remove the directories
             remove_previous_model(_out + os.sep + 'models')
             best_model_name = _out + os.sep + 'models/bestmodel_epoch_{}'.format(epoch +1)
             print("The current best model is", best_model_name, best_measure)
-
+            _wandb.log({"info": "The current best model is " + best_model_name + " "+ best_measure})
+            
             os.makedirs(best_model_name, exist_ok=True)
             model.save_pretrained(best_model_name)
             patience = 0
@@ -117,14 +124,24 @@ def training(_model, _train_data, _val_data, _learning_rate, _optimizer_name, _s
         print(
             f"""Epochs: {epoch + 1} | Train Loss: {total_loss_train / total_train_step:.3f} | Train {_measure}: {total_acc_train[_measure]:.3f} | Val Loss: {total_loss_val / total_eval_steps:.3f} | Val {_measure}: {total_acc_val[_measure]:.3f}""")
 
+        _wandb.log({
+            'epoch': epoch + 1,
+            'train_loss': total_loss_train / len(train_dataloader),
+            f'train_{_measure}': total_acc_train[_measure],
+            'val_loss': total_loss_val / len(val_dataloader),
+            f'val_{_measure}': total_acc_val[_measure]
+        })
+
     if best_model_name != None:
         model = model.from_pretrained(best_model_name)
         print("The final model used to predict the labels of the testing datasets is", best_model_name)
+        _wandb.log({"info": "The final model used to predict the labels of the testing datasets is "+ best_model_name})
 
     df_stats = pd.DataFrame(data=training_stats)
     df_stats = df_stats.set_index('epoch')
     df_stats.to_csv(_out + os.sep + "training_stats.csv")
 
+    _wandb.log({"info": df_stats})
     print(df_stats)
     myplot = sns.lineplot(data=df_stats, palette="tab10", linewidth=2.5)
     fig = myplot.get_figure()
@@ -135,7 +152,7 @@ def training(_model, _train_data, _val_data, _learning_rate, _optimizer_name, _s
 ############################################################################################################################################################################3
 #VALIDATION ON THE TEST SET
 
-def validate(_model, _test_data, _tokenizer, _batch_size=32, _padding="max_length", _max_length=512, _truncation=True, _measure="accuracy", evaltype=True):
+def validate(_wandb, _model, _test_data, _tokenizer, _batch_size=32, _padding="max_length", _max_length=512, _truncation=True, _measure="accuracy", evaltype=True):
     test_encodings = _tokenizer(_test_data['text'].tolist(), max_length=_max_length, truncation=_truncation, padding=_padding, return_tensors="pt")
     _mode = "train" if evaltype else "test"
     test = MyDataset(test_encodings, _test_data["label"].tolist(), mode=_mode)
@@ -168,6 +185,11 @@ def validate(_model, _test_data, _tokenizer, _batch_size=32, _padding="max_lengt
     if evaltype==True:
         total_acc_test = eval_metric.compute()
         print(f'Test {_measure}: {total_acc_test[_measure]:.4f}')
+        _wandb.log({
+            f'test_{_measure}': test_mesure,
+            'test_accuracy': test_accuarcy,
+            'test_avg_loss': avg_test_loss
+        })
     return out
 
 

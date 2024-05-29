@@ -10,6 +10,8 @@ from fine_tuning_PEFT import training, validate
 from peft import LoraConfig, get_peft_model, TaskType
 from torch.nn.parallel import DistributedDataParallel as DDP
 
+wandb.login()
+
 def init_distributed_mode():
     """ Initialize distributed training """
     dist.init_process_group(backend='gloo', init_method='env://')

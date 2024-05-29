@@ -20,7 +20,7 @@ if __name__ == "__main__":
     wandb.init(project="LNR", entity="javier-luque")
 
     # Initialize distributed mode
-    init_distributed_mode()
+    #init_distributed_mode()
 
     # Hyperparameters and settings
     lang = "english"

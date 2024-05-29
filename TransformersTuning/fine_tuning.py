@@ -105,7 +105,7 @@ def training(_wandb, _model, _train_data, _val_data, _learning_rate, _optimizer_
             remove_previous_model(_out + os.sep + 'models')
             best_model_name = _out + os.sep + 'models/bestmodel_epoch_{}'.format(epoch +1)
             print("The current best model is", best_model_name, best_measure)
-            _wandb.log({"info": "The current best model is " + best_model_name + " "+ best_measure})
+            _wandb.log({f"info": "The current best model is {best_model_name} {best_measure}"})
             
             os.makedirs(best_model_name, exist_ok=True)
             model.save_pretrained(best_model_name)
@@ -135,7 +135,7 @@ def training(_wandb, _model, _train_data, _val_data, _learning_rate, _optimizer_
     if best_model_name != None:
         model = model.from_pretrained(best_model_name)
         print("The final model used to predict the labels of the testing datasets is", best_model_name)
-        _wandb.log({"info": "The final model used to predict the labels of the testing datasets is "+ best_model_name})
+        _wandb.log({"info": f"The final model used to predict the labels of the testing datasets is {best_model_name}"})
 
     df_stats = pd.DataFrame(data=training_stats)
     df_stats = df_stats.set_index('epoch')

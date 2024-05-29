@@ -53,7 +53,7 @@ if __name__ == "__main__":
         "max_length": [128]
     }
 
-    lf = KFold(n_splits=5)
+    kf = KFold(n_splits=5)
 
     for i, preconfig in preconfig.items():
         lang=preconfig["lang"]

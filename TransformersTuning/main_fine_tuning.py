@@ -55,9 +55,9 @@ if __name__ == "__main__":
 
     kf = KFold(n_splits=5)
 
-    for i, config in preconfig.items():
-        lang=config["lang"]
-        model_name=config["model_name"]
+    for i, preconfig in preconfig.items():
+        lang=preconfig["lang"]
+        model_name=preconfig["model_name"]
         if lang == "spanish":
             X= es_train_df
         elif lang == "english":
@@ -98,7 +98,7 @@ if __name__ == "__main__":
                                 entity='javier-luque',
                                 group=f'{lang}_{model_name}',
                                 job_type='model')
-        parent_run.config.update(config)
+        parent_run.config.update(preconfig)
         parent_run.config.update({"SEED":SEED})
         
         
@@ -108,34 +108,48 @@ if __name__ == "__main__":
         model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
 
         runs = 0
-        
-        #Split training data in train and validation partition using hold out. It would be interesting use a K-Fold validation strategy.
-        #X_train, X_val = train_test_split(X, test_size=0.1, random_state=SEED, shuffle=True, stratify=X['label'])
 
-        for fold, (train_index, val_index) in enumerate(kf.split(X)):
-            X_train, X_val = X.iloc[train_index], X.iloc[val_index]
-            with wandb.init(project=f'LNR_{formatted_datetime}',
+        for config in product_dict(**hyperparams):
+            run_counter += 1
+            # Start a child run for this hyperparameter configuration
+            with wandb.init(project='LRN',
                             entity='javier-luque',
                             group=f'{lang}_{model_name}',
-                            job_type=f'hyperparam-tuning-{runs}',
-                            name=f'{lang}_{model_name}_{runs}_fold_{fold}'
-                            ) as fold_run:
-                fold_run.config.update(config)
-                fold_run.config.update(config)
-                fold_run.config.update({"SEED":SEED})
-
-                # Log the fold number
-                fold_run.config.update({"fold": fold + 1})
+                            job_type='hyperparam-tuning',
+                            name=f'{lang}_{model_name}_{runs}',
+                            ) as run:
+                # Log hyperparameters
+                run.config.update(config)
+                
+            # For each fold
             
-                #FINE-TUNNING the model and obtaining the best model across all epochs
-                fineTmodel=training(_wandb=fold_run, _model=model, _train_data=X_train, _val_data=X_val,_learning_rate=config["learning"],
-                                    _optimizer_name=config["optimizer_name"], _schedule=config["schedule"],  _epochs=config["epochs"], _tokenizer=config["tokenizer"], _batch_size=config["batch_size"],
-                                    _padding="max_length", _max_length=config["max_length"], _truncation=True, _patience=config["patience"], _measure=config["measure"], _out="./out")
-            
-            
-                #VALIDATING OR PREDICTIONG on the test partition, this time I'm using the validation set, but you have to use the test set.
-                test_data=X_val
-                preds=validate(_wandb=fold_run, _model=fineTmodel, _test_data=X_val, _tokenizer=tokenizer, _batch_size=config["batch_size"], _padding="max_length", _max_length=config["max_length"], _truncation=True, _measure=config["measure"], evaltype=True)
+            #Split training data in train and validation partition using hold out. It would be interesting use a K-Fold validation strategy.
+            #X_train, X_val = train_test_split(X, test_size=0.1, random_state=SEED, shuffle=True, stratify=X['label'])
+    
+            for fold, (train_index, val_index) in enumerate(kf.split(X)):
+                X_train, X_val = X.iloc[train_index], X.iloc[val_index]
+                with wandb.init(project=f'LNR_{formatted_datetime}',
+                                entity='javier-luque',
+                                group=f'{lang}_{model_name}',
+                                job_type=f'hyperparam-tuning-{runs}',
+                                name=f'{lang}_{model_name}_{runs}_fold_{fold}'
+                                ) as fold_run:
+                    fold_run.config.update(config)
+                    fold_run.config.update(config)
+                    fold_run.config.update({"SEED":SEED})
+    
+                    # Log the fold number
+                    fold_run.config.update({"fold": fold + 1})
+                
+                    #FINE-TUNNING the model and obtaining the best model across all epochs
+                    fineTmodel=training(_wandb=fold_run, _model=model, _train_data=X_train, _val_data=X_val,_learning_rate=config["learning"],
+                                        _optimizer_name=config["optimizer_name"], _schedule=config["schedule"],  _epochs=config["epochs"], _tokenizer=config["tokenizer"], _batch_size=config["batch_size"],
+                                        _padding="max_length", _max_length=config["max_length"], _truncation=True, _patience=config["patience"], _measure=config["measure"], _out="./out")
+                
+                
+                    #VALIDATING OR PREDICTIONG on the test partition, this time I'm using the validation set, but you have to use the test set.
+                    test_data=X_val
+                    preds=validate(_wandb=fold_run, _model=fineTmodel, _test_data=X_val, _tokenizer=tokenizer, _batch_size=config["batch_size"], _padding="max_length", _max_length=config["max_length"], _truncation=True, _measure=config["measure"], evaltype=True)
     
     
     

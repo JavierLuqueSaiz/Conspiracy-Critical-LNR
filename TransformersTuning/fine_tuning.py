@@ -165,6 +165,7 @@ def validate(_wandb, _model, _test_data, _tokenizer, _batch_size=32, _padding="m
     eval_metric, out, k = None, None, 0
     if evaltype==True:
         eval_metric = evaluate.load(f"Yeshwant123/{_measure}")
+        accuracy_metric = load_metric("accuracy")
 
     model.eval()
     for batch in test_dataloader:
@@ -182,10 +183,12 @@ def validate(_wandb, _model, _test_data, _tokenizer, _batch_size=32, _padding="m
             k += 1
             if evaltype==True:
                 eval_metric.add_batch(predictions=predictions, references=batch["labels"])
+                accuracy_metric.add_batch(predictions=predictions, references=batch["labels"])
     if evaltype==True:
         total_acc_test = eval_metric.compute()
+        accuracy_result = accuracy_metric.compute()
         test_mesure = total_acc_test[_measure]
-        test_accuarcy = total_acc_test["accuracy"]
+        test_accuarcy = accuracy_result["accuracy"]
         avg_test_loss = total_loss / len(test_dataloader)        # Log the test accuracy and loss to wandb
         _wandb.log({
             f'test_{_measure}': test_mesure,

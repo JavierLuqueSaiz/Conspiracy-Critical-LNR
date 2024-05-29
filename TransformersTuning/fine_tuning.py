@@ -28,9 +28,9 @@ def training(_wandb, _model, _train_data, _val_data, _learning_rate, _optimizer_
     _wandb.log({"device": str(device)})
     if use_cuda:
         model = _model.to(device)
-          if torch.cuda.device_count() > 1:
-              print(f"Usando {torch.cuda.device_count()} GPUs")
-              model = torch.nn.DataParallel(model)
+        if torch.cuda.device_count() > 1:
+            print(f"Usando {torch.cuda.device_count()} GPUs")
+            model = torch.nn.DataParallel(model)
     best_measure, best_model_name, patience = None, None, 0
     training_stats = []
     # train_eval = evaluate.load("accuracy")

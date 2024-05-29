@@ -25,6 +25,12 @@ def set_seed(seed):
     # os seed
     os.environ['PYTHONHASHSEED'] = str(seed)
 
+def product_dict(**kwargs):
+    keys = kwargs.keys()
+    vals = kwargs.values()
+    for instance in product(*vals):
+        yield dict(zip(keys, instance))
+
 def remove_previous_model(folder):
     dirs = [x for x in os.listdir(folder) if os.path.isdir(folder+os.sep+x)]
     for x in dirs:

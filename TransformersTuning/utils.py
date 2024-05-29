@@ -3,6 +3,7 @@ import shutil
 import random
 import numpy as np
 import torch
+from itertools import product
 
 def set_seed(seed):
     """

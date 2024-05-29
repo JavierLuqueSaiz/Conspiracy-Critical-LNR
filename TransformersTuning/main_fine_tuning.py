@@ -110,7 +110,7 @@ if __name__ == "__main__":
         runs = 0
 
         for config in product_dict(**hyperparams):
-            run_counter += 1
+            runs += 1
             # Start a child run for this hyperparameter configuration
             with wandb.init(project='LRN',
                             entity='javier-luque',

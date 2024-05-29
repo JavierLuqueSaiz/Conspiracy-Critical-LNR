@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # 2 learning rate
     learning = 1e-5 #[1e-4, 0.5e-5, 1e-5, 0.5e-6, 1e-6]
     # 3 epochs
-    epochs = 5 #[5, 10, 20]
+    epochs = 20 #[5, 10, 20]
     # 4 batch size
     batch_size = 32 #[16, 32, 64, 128]
     # 5 learning_rate schedule

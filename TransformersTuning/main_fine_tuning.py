@@ -95,7 +95,7 @@ if __name__ == "__main__":
         #patience = 3 #[5, 10]
         #max_length = 128 #[This value can be estimated on the training set]
     
-        Start a parent run for this preconfiguration
+        # Parent Run
         parent_run = wandb.init(project='LNR',
                                 entity='javier-luque',
                                 group=f'{lang}_{model_name}',

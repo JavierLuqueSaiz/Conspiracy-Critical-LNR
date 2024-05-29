@@ -117,8 +117,8 @@ if __name__ == "__main__":
             with wandb.init(project=f'LNR_{formatted_datetime}',
                             entity='javier-luque',
                             group=f'{lang}_{model_name}',
-                            job_type=f'hyperparam-tuning-{run_counter}',
-                            name=f'{lang}_{model_name}_{run_counter}_fold_{fold}'
+                            job_type=f'hyperparam-tuning-{runs}',
+                            name=f'{lang}_{model_name}_{runs}_fold_{fold}'
                             ) as fold_run:
                 fold_run.config.update(preconfig)
                 fold_run.config.update(config)

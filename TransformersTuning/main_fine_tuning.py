@@ -5,7 +5,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_
 from sklearn.model_selection import train_test_split, KFold
 from fine_tuning import training, validate
 SEED=1234
-from utils import set_seed
+from utils import set_seed, product_dict
 import wandb
 from datetime import datetime
 

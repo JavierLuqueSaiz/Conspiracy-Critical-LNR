@@ -10,6 +10,11 @@ from tqdm import tqdm
 from torch.optim import Adam, RMSprop
 from transformers import get_scheduler
 
+import warnings
+# Ignorar UserWarnings y FutureWarnings temporalmente
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 def training(_wandb, _model, _train_data, _val_data, _learning_rate, _optimizer_name, _schedule, _epochs,
              _tokenizer, _batch_size=32, _padding="max_length", _max_length=512, _truncation=True,
              _patience=10, _measure= "accuracy", _out=None):

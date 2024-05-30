@@ -24,10 +24,10 @@ if __name__ == "__main__":
         #    "lang": "english",
         #    "model_name": "roberta-base",
         #},
-        #1: {
-        #    "lang": "english",
-        #    "model_name": "microsoft/deberta-base",
-        #},
+        1: {
+            "lang": "english",
+            "model_name": "microsoft/deberta-base",
+        },
          2: {
              "lang": "spanish",
              "model_name": "dccuchile/bert-base-spanish-wwm-uncased",
@@ -44,10 +44,10 @@ if __name__ == "__main__":
     
     hyperparams = {
         "optimizer_name": ["adam", "rmsprop"], # ["adam", "rmsprop", "sgd"]
-        "learning": [0.5e-5], # [0.5e-5, 1e-5, 0.5e-6, 1e-6
+        "learning": [1e-5], # [0.5e-5, 1e-5, 0.5e-6, 1e-6
         "schedule": ["linear", "cosine"], # ["linear", "cosine", "constant"]
-        "patience": [7], # [3, 5, 10]
-        "epochs": [20], # [5, 10, 20]
+        "patience": [5], # [3, 5, 10]
+        "epochs": [10], # [5, 10, 20]
         "measure": ["mcc"],
         "batch_size": [32], # [16, 32, 64, 128]
         "max_length": [128]
@@ -125,7 +125,7 @@ if __name__ == "__main__":
             #Split training data in train and validation partition using hold out. It would be interesting use a K-Fold validation strategy.
             X_train, X_val = train_test_split(X, test_size=0.1, random_state=SEED, shuffle=True, stratify=X['label'])
     
-            with wandb.init(project=f'LNR_{formatted_datetime}_ESP',
+            with wandb.init(project=f'LNR_{formatted_datetime}_FIN',
                             entity='javier-luque',
                             group=f'{lang}_{model_name}',
                             job_type=f'hyperparam-tuning-{runs}',

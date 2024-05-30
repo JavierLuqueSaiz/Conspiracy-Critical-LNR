@@ -20,14 +20,14 @@ if __name__ == "__main__":
     set_seed(SEED)
 
     preconfig = {
-        #0: {
-        #    "lang": "english",
-        #    "model_name": "roberta-base",
-        #},
-        1: {
+        0: {
              "lang": "spanish",
              "model_name": "PlanTL-GOB-ES/roberta-base-bne"
          },
+        1: {
+            "lang": "english",
+            "model_name": "roberta-base",
+        },
         2: {
             "lang": "english",
             "model_name": "microsoft/deberta-base",
@@ -43,9 +43,9 @@ if __name__ == "__main__":
     }
     
     hyperparams = {
-        "optimizer_name": ["adam", "rmsprop"], # ["adam", "rmsprop", "sgd"]
+        "optimizer_name": ["adam"], # ["adam", "rmsprop", "sgd"]
         "learning": [1e-5], # [0.5e-5, 1e-5, 0.5e-6, 1e-6
-        "schedule": ["linear", "cosine"], # ["linear", "cosine", "constant"]
+        "schedule": ["linear"], # ["linear", "cosine", "constant"]
         "patience": [5], # [3, 5, 10]
         "epochs": [10], # [5, 10, 20]
         "measure": ["mcc"],

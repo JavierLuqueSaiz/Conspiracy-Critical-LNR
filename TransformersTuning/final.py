@@ -182,7 +182,7 @@ run = wandb.init()
 
 # Define SEED for reproducibility
 SEED = 1234
-
+num_folds=5
 num_samples = len(es_test_df)
 fold_predictions = np.zeros((num_samples, num_folds))
 

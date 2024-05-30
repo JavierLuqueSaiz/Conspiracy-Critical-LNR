@@ -7,6 +7,8 @@ SEED=1234
 from utils import set_seed, product_dict
 import wandb
 from datetime import datetime
+import pandas as pd
+import json
 
 TRAIN_DATASET_ES="dataset_es_official_test_nolabels.json"
 TRAIN_DATASET_EN="dataset_en_official_test_nolabels.json"

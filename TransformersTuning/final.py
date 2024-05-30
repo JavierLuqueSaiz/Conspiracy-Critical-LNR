@@ -2,7 +2,7 @@ import pandas as pd
 from datareader import en_train_df, es_train_df
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_scheduler
 from sklearn.model_selection import train_test_split, KFold
-from fine_tuning import training, validate
+from fine_tuning import training
 SEED=1234
 from utils import set_seed, product_dict
 import wandb
@@ -11,6 +11,40 @@ from datetime import datetime
 TRAIN_DATASET_ES="dataset_es_official_test_nolabels.json"
 TRAIN_DATASET_EN="dataset_en_official_test_nolabels.json"
 
+# Define the validation function
+def validate(_wandb, _model, _test_data, _tokenizer, _batch_size=32, _padding="max_length", _max_length=512, _truncation=True, _measure="accuracy", evaltype=False):
+    test_encodings = _tokenizer(_test_data['text'].tolist(), max_length=_max_length, truncation=_truncation, padding=_padding, return_tensors="pt")
+    
+    # Comprobar si hay etiquetas en los datos, asumir que no si no están presentes
+    if 'label' in _test_data:
+        labels = _test_data['label'].tolist()
+    else:
+        labels = None  # No labels provided
+    
+    test = MyDataset(test_encodings, labels, mode="predict" if labels is None else "train")
+    test_dataloader = torch.utils.data.DataLoader(test, batch_size=_batch_size)
+
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
+    _model.to(device)
+    if torch.cuda.device_count() > 1:
+        print(f"Usando {torch.cuda.device_count()} GPUs")
+        _model = torch.nn.DataParallel(_model)
+
+    _model.eval()
+    all_predictions = []
+
+    with torch.no_grad():
+        for batch in test_dataloader:
+            batch = {k: v.to(device) for k, v in batch.items() if k != 'labels'}
+            outputs = _model(**batch)
+            logits = outputs.logits
+            predictions = torch.argmax(logits, dim=-1)
+            all_predictions.append(predictions.cpu())  # Move predictions to CPU
+
+    # Concatenar todas las predicciones
+    all_predictions = torch.cat(all_predictions).numpy()  # Ensure tensor is on CPU before converting to numpy
+    return all_predictions
 
 class PAN24Reader:
     def __init__(self):

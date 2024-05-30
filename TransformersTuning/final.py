@@ -8,6 +8,7 @@ from utils import set_seed, product_dict
 import wandb
 from datetime import datetime
 
+myReader=PAN24Reader()
 es_test_df = myReader.load_dataset_classification(TEST_DATASET_ES, string_labels=False, positive_class='conspiracy')
 en_test_df = myReader.load_dataset_classification(TEST_DATASET_EN, string_labels=False, positive_class='conspiracy')
 

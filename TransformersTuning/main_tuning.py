@@ -108,6 +108,17 @@ if __name__ == "__main__":
 
         for config in product_dict(**hyperparams):
             runs += 1
+
+            # Start a child run for this hyperparameter configuration
+            with wandb.init(project='LNR',
+                            entity='javier-luque',
+                            group=f'{lang}_{model_name}',
+                            job_type='hyperparam-tuning',
+                            name=f'{lang}_{model_name}_{runs}',
+                            ) as run:
+                # Log hyperparameters
+                run.config.update(config)
+                
                 
             # For each fold
             

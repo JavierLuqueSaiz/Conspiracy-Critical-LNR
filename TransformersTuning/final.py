@@ -194,7 +194,7 @@ artifacts = ['javier-luque/LNR_2024-05-30_14-03-15_FIN/run-n27mn2wt-history:v0',
             'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-pluwlcjo-history:v0',
             'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-b0ivyb1p-history:v0']
 
-for fold, i in artifacts.enumerate():
+for fold, i in enumerate(artifacts):
     artifact = run.use_artifact(i, type='wandb-history')
     artifact_dir = artifact.download()
     model = AutoModelForSequenceClassification.from_pretrained(artifact_dir)
@@ -251,7 +251,7 @@ artifacts = ['javier-luque/LNR_2024-05-30_14-03-15_FIN/run-xhprw64q-history:v0',
              'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-egd7d5bb-history:v0',
              'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-1tamhoak-history:v0']
 
-for fold, i in artifacts.enumerate():
+for fold, i in enumerate(artifacts):
     artifact = run.use_artifact(i, type='wandb-history')
     artifact_dir = artifact.download()
     model = AutoModelForSequenceClassification.from_pretrained(artifact_dir)

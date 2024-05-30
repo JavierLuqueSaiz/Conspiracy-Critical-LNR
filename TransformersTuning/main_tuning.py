@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
             for fold, (train_index, val_index) in enumerate(kf.split(X)):
                 X_train, X_val = X.iloc[train_index], X.iloc[val_index]
-                with wandb.init(project=f'LNR_{formatted_datetime}',
+                with wandb.init(project=f'LNR_{formatted_datetime}_FIN',
                                 entity='javier-luque',
                                 group=f'{lang}_{model_name}',
                                 job_type=f'hyperparam-tuning-{runs}',
@@ -140,16 +140,6 @@ if __name__ == "__main__":
                     # Log the fold number
                     fold_run.config.update({"fold": fold + 1})
                     print(f'Fold: {fold+1}')
-    
-                with wandb.init(project=f'LNR_{formatted_datetime}_FIN',
-                                entity='javier-luque',
-                                group=f'{lang}_{model_name}',
-                                job_type=f'hyperparam-tuning-{runs}',
-                                name=f'{lang}_{model_name}_{runs}'
-                                ) as fold_run:
-                    fold_run.config.update(config)
-                    fold_run.config.update(config)
-                    fold_run.config.update({"SEED":SEED})
     
                     wandb.log({"info": f"Loading Transformer Model {model_name}"})
                     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)

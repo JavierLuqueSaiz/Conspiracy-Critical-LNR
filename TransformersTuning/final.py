@@ -9,6 +9,129 @@ import wandb
 from datetime import datetime
 import pandas as pd
 import json
+import os
+import torch
+import evaluate
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+from tqdm import tqdm
+from torch.optim import Adam, RMSprop
+from transformers  import  get_scheduler
+from sklearn.model_selection import KFold
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from sklearn.model_selection import KFold
+import wandb
+from datetime import datetime
+import os
+import shutil
+import random
+import numpy as np
+from itertools import product
+
+# utils.py
+def set_seed(seed):
+    """
+    Sets the seed to make everything deterministic, for reproducibility of experiments
+    Parameters:
+    seed: the number to set the seed to
+    Return: None
+    """
+    # Random seed
+    random.seed(seed)
+    # Numpy seed
+    np.random.seed(seed)
+
+    # Torch seed
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
+
+    # os seed
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+def remove_previous_model(folder):
+    dirs = [x for x in os.listdir(folder) if os.path.isdir(folder+os.sep+x)]
+    for x in dirs:
+        shutil.rmtree(folder+os.sep+x, ignore_errors=False, onerror=None)
+
+
+def product_dict(**kwargs):
+    keys = kwargs.keys()
+    vals = kwargs.values()
+    for instance in product(*vals):
+        yield dict(zip(keys, instance))
+
+# mydataset.py
+class MyDataset(torch.utils.data.Dataset):
+    def __init__(self, encodings, labels=None, mode='train'):
+        self.encodings = encodings
+        if labels is None:
+            self.labels = None  # No labels present
+        else:
+            self.labels = labels
+
+    def __getitem__(self, idx):
+        item = {key: val[idx].clone().detach() for key, val in self.encodings.items()}
+        if self.labels is not None:
+            item['labels'] = torch.tensor(self.labels[idx]).clone().detach()
+        return item
+
+    def __len__(self):
+        return len(self.encodings['input_ids'])  # Or another key that's always present
+    
+# datareader.py
+import pandas as pd
+import json
+
+BINARY_MAPPING_CRITICAL_POS = {'CONSPIRACY': 0, 'CRITICAL': 1}
+BINARY_MAPPING_CONSPIRACY_POS = {'CRITICAL': 0, 'CONSPIRACY': 1}
+
+CATEGORY_MAPPING_CRITICAL_POS_INVERSE = {0: 'CONSPIRACY', 1: 'CRITICAL'}
+CATEGORY_MAPPING_CONSPIRACY_POS_INVERSE = {0: 'CRITICAL', 1: 'CONSPIRACY'}
+
+# TRAIN_DATASET_ES="/kaggle/input/dataset-oppositional/dataset_oppositional/training/dataset_oppositional/dataset_es_train.json"
+# TRAIN_DATASET_EN="/kaggle/input/dataset-oppositional/dataset_oppositional/training/dataset_oppositional/dataset_en_train.json"
+TEST_DATASET_EN ="dataset_en_official_test_nolabels.json"
+TEST_DATASET_ES ="dataset_es_official_test_nolabels.json"
+
+
+class PAN24Reader:
+    def __init__(self):
+        pass
+    def read_json_file(self, path):
+        dataset=[]
+        print(f'Loading official JSON {path} dataset')
+        with open(path, 'r', encoding='utf-8') as file:
+            dataset = json.load(file)
+        return dataset
+
+    def load_dataset_classification(self, path, string_labels=False, positive_class='conspiracy'):
+        dataset = self.read_json_file(path)
+        # convert to a format suitable for classification
+        texts = pd.Series([doc['text'] for doc in dataset])
+        if string_labels:
+            classes = pd.Series([doc['category'] for doc in dataset])
+        else:
+            if positive_class == 'conspiracy':
+                binmap = BINARY_MAPPING_CONSPIRACY_POS
+            elif positive_class == 'critical':
+                binmap = BINARY_MAPPING_CRITICAL_POS
+            else:
+                raise ValueError(f'Unknown positive class: {positive_class}')
+#             classes = [binmap[doc['category']] for doc in dataset]
+#             classes = pd.Series(classes)
+        ids = pd.Series([doc['id'] for doc in dataset])
+#         data = pd.DataFrame({"text": texts, "id": ids, "label": classes})
+        data = pd.DataFrame({"text": texts, "id": ids})
+
+        return data
+
+
+myReader=PAN24Reader()
+es_test_df = myReader.load_dataset_classification(TEST_DATASET_ES, string_labels=False, positive_class='conspiracy')
+en_test_df = myReader.load_dataset_classification(TEST_DATASET_EN, string_labels=False, positive_class='conspiracy')
 
 BINARY_MAPPING_CRITICAL_POS = {'CONSPIRACY': 0, 'CRITICAL': 1}
 BINARY_MAPPING_CONSPIRACY_POS = {'CRITICAL': 0, 'CONSPIRACY': 1}
@@ -53,40 +176,6 @@ def validate(_wandb, _model, _test_data, _tokenizer, _batch_size=32, _padding="m
     # Concatenar todas las predicciones
     all_predictions = torch.cat(all_predictions).numpy()  # Ensure tensor is on CPU before converting to numpy
     return all_predictions
-
-class PAN24Reader:
-    def __init__(self):
-        pass
-    def read_json_file(self, path):
-        dataset=[]
-        print(f'Loading official JSON {path} dataset')
-        with open(path, 'r', encoding='utf-8') as file:
-            dataset = json.load(file)
-        return dataset
-
-    def load_dataset_classification(self, path, string_labels=False, positive_class='conspiracy'):
-        dataset = self.read_json_file(path)
-        # convert to a format suitable for classification
-        texts = pd.Series([doc['text'] for doc in dataset])
-        if string_labels:
-            classes = pd.Series([doc['category'] for doc in dataset])
-        else:
-            if positive_class == 'conspiracy':
-                binmap = BINARY_MAPPING_CONSPIRACY_POS
-            elif positive_class == 'critical':
-                binmap = BINARY_MAPPING_CRITICAL_POS
-            else:
-                raise ValueError(f'Unknown positive class: {positive_class}')
-            classes = [binmap[doc['category']] for doc in dataset]
-            classes = pd.Series(classes)
-        ids = pd.Series([doc['id'] for doc in dataset])
-        data = pd.DataFrame({"text": texts, "id": ids, "label": classes})
-        return data
-
-
-myReader=PAN24Reader()
-es_train_df = myReader.load_dataset_classification(TRAIN_DATASET_ES, string_labels=False, positive_class='conspiracy')
-en_train_df = myReader.load_dataset_classification(TRAIN_DATASET_EN, string_labels=False, positive_class='conspiracy')
 
 import wandb
 run = wandb.init()

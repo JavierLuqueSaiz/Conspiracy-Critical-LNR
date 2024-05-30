@@ -108,22 +108,13 @@ if __name__ == "__main__":
 
         for config in product_dict(**hyperparams):
             runs += 1
-            # Start a child run for this hyperparameter configuration
-            with wandb.init(project='LRN',
-                            entity='javier-luque',
-                            group=f'{lang}_{model_name}',
-                            job_type='hyperparam-tuning',
-                            name=f'{lang}_{model_name}_{runs}',
-                            ) as run:
-                # Log hyperparameters
-                run.config.update(config)
                 
             # For each fold
             
             #Split training data in train and validation partition using hold out. It would be interesting use a K-Fold validation strategy.
             X_train, X_val = train_test_split(X, test_size=0.1, random_state=SEED, shuffle=True, stratify=X['label'])
     
-            with wandb.init(project=f'LNR_{formatted_datetime}',
+            with wandb.init(project=f'LNR_{formatted_datetime}_ESP',
                             entity='javier-luque',
                             group=f'{lang}_{model_name}',
                             job_type=f'hyperparam-tuning-{runs}',

@@ -4,7 +4,7 @@ from datareader import en_train_df, es_train_df
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_scheduler
 from sklearn.model_selection import train_test_split, KFold
 from fine_tuning import training, validate
-SEED=1234
+SEED=32
 from utils import set_seed, product_dict
 import wandb
 from datetime import datetime

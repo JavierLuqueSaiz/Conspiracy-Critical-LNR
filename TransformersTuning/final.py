@@ -10,6 +10,12 @@ from datetime import datetime
 import pandas as pd
 import json
 
+BINARY_MAPPING_CRITICAL_POS = {'CONSPIRACY': 0, 'CRITICAL': 1}
+BINARY_MAPPING_CONSPIRACY_POS = {'CRITICAL': 0, 'CONSPIRACY': 1}
+
+CATEGORY_MAPPING_CRITICAL_POS_INVERSE = {0: 'CONSPIRACY', 1: 'CRITICAL'}
+CATEGORY_MAPPING_CONSPIRACY_POS_INVERSE = {0: 'CRITICAL', 1: 'CONSPIRACY'}
+
 TRAIN_DATASET_ES="dataset_es_official_test_nolabels.json"
 TRAIN_DATASET_EN="dataset_en_official_test_nolabels.json"
 

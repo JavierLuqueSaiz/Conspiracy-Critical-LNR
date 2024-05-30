@@ -68,9 +68,7 @@ if __name__ == "__main__":
         if lang == "english":
             assert (model_name in ['bert-base-uncased', "roberta-base", 'microsoft/deberta-base'])
         if lang == "spanish":
-            assert (model_name in ['dccuchile/bert-base-spanish-wwm-uncased','PlanTL-GOB-ES/roberta-base-bne'])
-        if lang == "multi":
-            assert (model_name in ['bert-base-multilingual-uncased'])
+            assert (model_name in ['dccuchile/bert-base-spanish-wwm-uncased','PlanTL-GOB-ES/roberta-base-bne','bert-base-multilingual-uncased'])
     
         # HPERPARAMETERS
         # 1 optimizer

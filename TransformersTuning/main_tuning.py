@@ -26,7 +26,7 @@ if __name__ == "__main__":
         #},
         1: {
              "lang": "spanish",
-             "model_name": "bert-base-multilingual-uncased"
+             "model_name": "PlanTL-GOB-ES/roberta-base-bne"
          },
         2: {
             "lang": "english",
@@ -38,7 +38,7 @@ if __name__ == "__main__":
          },
          4: {
              "lang": "spanish",
-             "model_name": "PlanTL-GOB-ES/roberta-base-bne",
+             "model_name": "bert-base-multilingual-uncased",
          }
     }
     

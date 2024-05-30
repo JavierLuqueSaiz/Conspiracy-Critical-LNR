@@ -20,14 +20,14 @@ if __name__ == "__main__":
     set_seed(SEED)
 
     preconfig = {
-        0: {
-            "lang": "english",
-            "model_name": "roberta-base",
-        },
-        1: {
-            "lang": "english",
-            "model_name": "microsoft/deberta-base",
-        },
+        #0: {
+        #    "lang": "english",
+        #    "model_name": "roberta-base",
+        #},
+        #1: {
+        #    "lang": "english",
+        #    "model_name": "microsoft/deberta-base",
+        #},
          2: {
              "lang": "spanish",
              "model_name": "dccuchile/bert-base-spanish-wwm-uncased",
@@ -44,10 +44,10 @@ if __name__ == "__main__":
     
     hyperparams = {
         "optimizer_name": ["adam", "rmsprop"], # ["adam", "rmsprop", "sgd"]
-        "learning": [0.5e-5, 1e-6], # [0.5e-5, 1e-5, 0.5e-6, 1e-6
+        "learning": [0.5e-5], # [0.5e-5, 1e-5, 0.5e-6, 1e-6
         "schedule": ["linear", "cosine"], # ["linear", "cosine", "constant"]
-        "patience": [5, 10], # [3, 5, 10]
-        "epochs": [5, 20], # [5, 10, 20]
+        "patience": [7], # [3, 5, 10]
+        "epochs": [20], # [5, 10, 20]
         "measure": ["mcc"],
         "batch_size": [32], # [16, 32, 64, 128]
         "max_length": [128]

@@ -25,20 +25,20 @@ if __name__ == "__main__":
         #    "model_name": "roberta-base",
         #},
         1: {
+             "lang": "spanish",
+             "model_name": "bert-base-multilingual-uncased"
+         },
+        2: {
             "lang": "english",
             "model_name": "microsoft/deberta-base",
         },
-         2: {
+         3: {
              "lang": "spanish",
              "model_name": "dccuchile/bert-base-spanish-wwm-uncased",
          },
-         3: {
-             "lang": "spanish",
-             "model_name": "PlanTL-GOB-ES/roberta-base-bne",
-         },
          4: {
              "lang": "spanish",
-             "model_name": "bert-base-multilingual-uncased"
+             "model_name": "PlanTL-GOB-ES/roberta-base-bne",
          }
     }
     

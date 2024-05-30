@@ -149,7 +149,10 @@ fold_predictions = np.zeros((num_samples, num_folds))
 all_predictions = []
 
 artifacts = ['javier-luque/LNR_2024-05-30_14-03-15_FIN/run-xhprw64q-history:v0',
-            ]
+             'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-50dbooo4-history:v0',
+             'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-xxveo7fe-history:v0',
+             'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-egd7d5bb-history:v0',
+             'javier-luque/LNR_2024-05-30_14-03-15_FIN/run-1tamhoak-history:v0']
 
 for i in artifacts:
     artifact = run.use_artifact(i, type='wandb-history')
